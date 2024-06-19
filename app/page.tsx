@@ -13,7 +13,10 @@ type Message = {
   id: string;
   user: string;
   message: string;
-  date: string;
+  date: {
+    seconds: number;
+    nanoseconds: number;
+  };
 };
 
 export default function Home() {
@@ -73,6 +76,16 @@ export default function Home() {
           <li key={message.id} className="mb-2">
             <strong>{message.user}</strong>: <br />
             {message.message}
+            <br />
+            <small>
+              {new Date(message.date.seconds * 1000).toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false,
+              })}
+            </small>
           </li>
         ))}
       </ul>
