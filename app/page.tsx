@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+
 import Chat from "./components/Chat";
 import { getAuth, signInAnonymously, signOut } from "firebase/auth";
 
@@ -9,7 +10,7 @@ export type User = {
   isAnonymous: boolean;
 };
 
-const page = () => {
+const Homepage = () => {
   const [user, setUser] = useState<User | null>(null);
 
   const annonymousAuth = () => {
@@ -41,7 +42,6 @@ const page = () => {
 
   useEffect(() => {
     const auth = getAuth();
-    const user = auth.currentUser;
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
@@ -87,4 +87,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Homepage;
