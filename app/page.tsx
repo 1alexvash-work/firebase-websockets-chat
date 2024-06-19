@@ -5,7 +5,9 @@ import { db } from "./configs/firebase";
 import {
   addDoc,
   collection,
+  limit,
   onSnapshot,
+  query,
   serverTimestamp,
 } from "firebase/firestore";
 
@@ -24,22 +26,25 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "messages"), (snapshot) => {
-      const fetchedMessages = [] as Message[];
+    const unsubscribe = onSnapshot(
+      query(collection(db, "messages"), limit(100)),
+      (snapshot) => {
+        const fetchedMessages = [] as Message[];
 
-      snapshot.forEach((doocument) => {
-        const message: Message = {
-          id: doocument.id,
-          user: doocument.data().user,
-          message: doocument.data().message,
-          date: doocument.data().date,
-        };
+        snapshot.forEach((doocument) => {
+          const message: Message = {
+            id: doocument.id,
+            user: doocument.data().user,
+            message: doocument.data().message,
+            date: doocument.data().date,
+          };
 
-        fetchedMessages.push(message);
-      });
+          fetchedMessages.push(message);
+        });
 
-      setMessages(fetchedMessages);
-    });
+        setMessages(fetchedMessages);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
