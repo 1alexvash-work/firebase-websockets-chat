@@ -1,23 +1,65 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { db } from "./configs/firebase";
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  serverTimestamp,
+} from "firebase/firestore";
 
-const messages = [
-  { id: 1, user: "John", message: "Hello" },
-  { id: 2, user: "Jane", message: "Hi" },
-  { id: 3, user: "John", message: "How are you?" },
-];
+type Message = {
+  id: string;
+  user: string;
+  message: string;
+  date: string;
+};
 
 export default function Home() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleButtonClick = () => {
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "messages"), (snapshot) => {
+      const fetchedMessages = [] as Message[];
+
+      snapshot.forEach((doocument) => {
+        const message: Message = {
+          id: doocument.id,
+          user: doocument.data().user,
+          message: doocument.data().message,
+          date: doocument.data().date,
+        };
+
+        fetchedMessages.push(message);
+      });
+
+      setMessages(fetchedMessages);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleButtonClick = async () => {
     if (inputRef.current) {
       const inputValue = inputRef.current.value;
 
       if (inputValue.trim() === "") {
         alert("Please type a message.");
         return;
+      }
+
+      try {
+        await addDoc(collection(db, "messages"), {
+          user: "John",
+          message: inputValue,
+          date: serverTimestamp(),
+        });
+
+        inputRef.current.value = "";
+      } catch (error) {
+        console.error("Error adding document: ", error);
       }
     }
   };
